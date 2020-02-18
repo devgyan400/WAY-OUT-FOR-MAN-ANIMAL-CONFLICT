@@ -4,7 +4,6 @@ import picamera
 from Adafruit_CharLCD import Adafruit_CharLCD
 
 GPIO.setwarnings(False)
-#GPIO.setmode(GPIO.BOARD)
 PIR_PIN = 27
 GPIO.setup(PIR_PIN, GPIO.IN)
 BUZZER_PIN = 22
