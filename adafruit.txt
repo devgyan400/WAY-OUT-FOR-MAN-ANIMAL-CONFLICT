@@ -1,1 +1,7 @@
-pip install Adafruit-CharLCD
+install Adafruit library
+      pip install Adafruit-CharLCD
+      
+check camera port
+    vcgencmd get_camera
+
+      
