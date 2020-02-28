@@ -136,6 +136,7 @@ try:
         time.sleep(2)
 except KeyboardInterrupt:
     print("Exit")
+    camera.close()
     lcd.message("Exit")
     time.sleep(2)
     lcd.clear()
