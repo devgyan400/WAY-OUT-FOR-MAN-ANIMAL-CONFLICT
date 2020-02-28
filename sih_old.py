@@ -23,7 +23,7 @@ def buzzer():
         p.start(100)
         p.ChangeDutyCycle(90)
         p.ChangeFrequency(400)
-        time.sleep(5)
+        time.sleep(10)
         p.stop()
 
 def objectdetection(input_image):
@@ -76,15 +76,15 @@ def objectdetection(input_image):
                 return object
 
 try:
-    time.sleep(1)
+    time.sleep(2)
     print("Ready for operation")
     while True:
         if GPIO.input(PIR_PIN):
             print("Motion detected")
             print("Activate picamera")
             picamera()
-            obj_detec_result = objectdetection('frame1.jpg')
-        time.sleep(1)
+            result = objectdetection('frame1.jpg')
+        time.sleep(2)
 except KeyboardInterrupt:
-    print("Quit")
+    print("Exit")
     GPIO.cleanup()
