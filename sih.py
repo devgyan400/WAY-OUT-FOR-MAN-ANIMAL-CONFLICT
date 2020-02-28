@@ -9,7 +9,7 @@ GPIO.setup(PIR_PIN, GPIO.IN)
 BUZZER_PIN = 22
 GPIO.setup(BUZZER_PIN,GPIO.OUT)
 
-list = ['person','boar','monkey','elephant','horse','cattle','antilope','leopard','tractor','bottle']
+list = ['person','boar','bear','monkey','elephant','horse','cat','dog','cow','leopard','tractor']
 
 lcd = Adafruit_CharLCD(rs=26, en=19, d4=13, d5=6, d6=5, d7=21, cols=16, lines=2)
 lcd.clear()
@@ -68,7 +68,7 @@ def objectdetection(input_image):
             scores = detection[5:]
             class_id = np.argmax(scores)
             confidence = scores[class_id]
-            if confidence > 0.2:
+            if confidence > 0.20:
                 # Object detected
                 center_x = int(detection[0] * width)
                 center_y = int(detection[1] * height)
@@ -87,9 +87,10 @@ def objectdetection(input_image):
     return det_list
 
 try:
-    time.sleep(1)
+    time.sleep(2)
     print("Ready for operation")
     lcd.message("Ready for \n operation")
+    time.sleep(2)
     while True:
         if GPIO.input(PIR_PIN):
             print("Motion detected")
@@ -108,27 +109,34 @@ try:
                     lcd.message(i)
                     if i in list:
                             if i == 'person':
-                                buzzer(10000)
-                            if i == 'boar':
+                                lcd.message("\n"+"pass")
+                                time.sleep(10)
+                            if i == 'bear':
                                 buzzer(34000)
+                            if i == 'boar':
+                            	buzzer(34000)
                             if i == 'elephant':
                                 buzzer(12000)
                             if i == 'monkey':
                                 buzzer(42000)
                             if i == 'horse':
                                 buzzer(24000)
-                            if i == 'cattle':
+                            if i == 'dog':
                                 buzzer(32000)
-                            if i == 'antilope':
-                                buzzer(22000)
+                            if i == 'cat':
+                                buzzer(32000)
+                            if i == 'cow':
+                            	buzzer(35000)
                             if i == 'leopard':
                                 buzzer(45000)
                             if i == 'tractor':
-                                pass
-                            if i == 'bottle':
-                                buzzer(500)
+                                lcd.message("\n"+"pass")
+                                time.sleep(10)
                 lcd.clear()
-        time.sleep(1)
+        time.sleep(2)
 except KeyboardInterrupt:
-    print("Quit")
+    print("Exit")
+    lcd.message("Exit")
+    time.sleep(2)
+    lcd.clear()
     GPIO.cleanup()
