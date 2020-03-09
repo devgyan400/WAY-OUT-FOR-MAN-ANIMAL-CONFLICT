@@ -1,38 +1,62 @@
 import cv2
-from darkflow.net.build import TFNet
-import matplotlib.pyplot as plt
+import numpy as np
 
-%config InlineBackend.figure_format = 'svg'
+# Load Yolo
+net = cv2.dnn.readNet("yolov3.weights", "yolov3.cfg")
+classes = []
+with open("coco.names", "r") as f:
+    classes = [line.strip() for line in f.readlines()]
+layer_names = net.getLayerNames()
+output_layers = [layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
+colors = np.random.uniform(0, 255, size=(len(classes), 3))
 
-# define the model options and run
+# Loading image
+img = cv2.imread("room_ser.jpg")
+img = cv2.resize(img, None, fx=0.4, fy=0.4)
+height, width, channels = img.shape
 
-options = {
-    'model': 'yolov2.cfg',
-    'load': 'yolov2.weights',
-    'threshold': 0.3,
-    'gpu': 1.0
-}
+# Detecting objects
+blob = cv2.dnn.blobFromImage(img, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
 
-tfnet = TFNet(options)
+net.setInput(blob)
+outs = net.forward(output_layers)
 
-# read the color image and covert to RGB
+# Showing informations on the screen
+class_ids = []
+confidences = []
+boxes = []
+for out in outs:
+    for detection in out:
+        scores = detection[5:]
+        class_id = np.argmax(scores)
+        confidence = scores[class_id]
+        if confidence > 0.5:
+            # Object detected
+            center_x = int(detection[0] * width)
+            center_y = int(detection[1] * height)
+            w = int(detection[2] * width)
+            h = int(detection[3] * height)
 
-img = cv2.imread('image1.jpg', cv2.IMREAD_COLOR)
-img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            # Rectangle coordinates
+            x = int(center_x - w / 2)
+            y = int(center_y - h / 2)
 
-# use YOLO to predict the image
-result = tfnet.return_predict(img)
+            boxes.append([x, y, w, h])
+            confidences.append(float(confidence))
+            class_ids.append(class_id)
 
-img.shape
+indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
+print(indexes)
+font = cv2.FONT_HERSHEY_PLAIN
+for i in range(len(boxes)):
+    if i in indexes:
+        x, y, w, h = boxes[i]
+        label = str(classes[class_ids[i]])
+        color = colors[i]
+        cv2.rectangle(img, (x, y), (x + w, y + h), color, 2)
+        cv2.putText(img, label, (x, y + 30), font, 3, color, 3)
 
 
-tl = (result[0]['topleft']['x'], result[0]['topleft']['y'])
-br = (result[0]['bottomright']['x'], result[0]['bottomright']['y'])
-label = result[0]['label']
-
-
-# add the box and label and display it
-img = cv2.rectangle(img, tl, br, (0, 255, 0), 7)
-img = cv2.putText(img, label, tl, cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 0), 2)
-plt.imshow(img)
-plt.show()
+cv2.imshow("Image", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
